@@ -62,6 +62,7 @@ h4 {
   display: flex;
   flex-flow: row;
   width: max-content;
+  margin: 5px;
 }
 
 .row {
@@ -85,8 +86,7 @@ img {
   filter: invert(1);
 }
 
-.copy-section
-{
+.copy-section {
   display: flex;
   flex-direction: column;
   text-align: center;

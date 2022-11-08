@@ -11,13 +11,25 @@ const io = new Server(6969, {
         origin: '*'
     }
 })
+
+let stopped = false
+
 io.on('connection', (socket) => {
     console.log(`${socket.id} connected`)
+
+    socket.on('scan', (network, netmask, range) => {
+        scan(network, netmask, range)
+    })
+
+    socket.on('stop', () =>
+    {
+        stopped = true
+    })
 })
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-async function scan(network, netmask, range = []) {
+async function scan(network, netmask, range = [], delay = delay*1000) {
     range.sort((a, b) => a - b)
     if (range.length > 2)
         return "Too many arguments in range"
@@ -25,8 +37,18 @@ async function scan(network, netmask, range = []) {
         range[1] = range[0]
 
     let addresses = []
-    new Netmask(`${network}/${netmask}`).forEach(addr => addresses.push(addr))
+    let scanCount
+    let scanned = 0
+    new Netmask(`${network}/${netmask}`).forEach(addr => {
+        addresses.push(addr)
+        scanCount = addresses.length
+    })
     for (let i = 0; i < addresses.length; i++) {
+        if (stopped)
+        {
+            stopped = false
+            return
+        }
         new Evilscan({
             target: addresses[i],
             port: `${range[0]}-${range[1]}`,
@@ -42,12 +64,14 @@ async function scan(network, netmask, range = []) {
                 } catch (e) { console.error(e) }
             })
 
+            scan.on('done', () => {
+                io.sockets.emit('progress', (scanned / scanCount) * 100)
+                scanned++
+            })
+
             scan.run()
         })
 
-        await sleep(5000)
+        await sleep(delay)
     }
-
 }
-
-//scan("185.116.157.0", 24, [17000, 18000])
