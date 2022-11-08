@@ -75,3 +75,5 @@ async function scan(network, netmask, range = [], delay = delay*1000) {
         await sleep(delay)
     }
 }
+
+//scan("185.116.157.0", 24, [17000, 18000], 5)

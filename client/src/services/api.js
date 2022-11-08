@@ -1,16 +1,16 @@
 import {io} from 'socket.io-client'
 import { useStore } from '../store/store.js'
 
-export class API
+export default class API
 {
     store = useStore()
-    socket = new io("127.0.0.1", 6969)
+    socket = new io("127.0.0.1:6969")
 
     constructor()
     {
         this.socket.on('new-server', (server) =>
         {
-            this.store.push(server)
+            this.store.servers.push(server)
         })
     }
 
