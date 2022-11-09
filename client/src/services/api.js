@@ -10,7 +10,7 @@ export default class API
     {
         this.socket.on('new-server', (server) =>
         {
-            this.store.servers.push(server)
+            this.store.add(server)
         })
     }
 

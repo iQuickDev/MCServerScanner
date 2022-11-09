@@ -1,18 +1,15 @@
 import { defineStore } from 'pinia'
 
 export const useStore = defineStore('servers', {
-    state: () => {
+    state: () => ({
         servers: []
-    },
-    getters: {
-        servers: (state) => servers
-    },
+    }),
     actions: {
         clear() {
-            servers = []
+            this.servers = []
         },
-        push(server) {
-            
+        add(server) {
+            this.servers.unshift(server)
         }
     }
 })

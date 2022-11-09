@@ -2,23 +2,26 @@
 import ServerPanel from './components/ServerPanel.vue'
 import ScanPanel from './components/ScanPanel.vue'
 import SearchPanel from './components/SearchPanel.vue'
-import {useStore} from './store/store.js'
+import { useStore } from './store/store.js'
 import API from './services/api.js'
 const api = new API()
 
 const store = useStore()
-console.log(store.all)
+console.log(store.servers)
 </script>
 
 <template>
   <div class="wrapper">
-    <ScanPanel/>
+    <ScanPanel />
     <div class="server-container">
-       <!-- <ServerPanel v-for="item in store.all" :motd="item.motd" :address="item.address" :port="item.port" :ping="item.ping" :version="item.version"
-        :protocol="item.protocol" :online-players="item.onlinePlayers" :max-players="item.maxPlayers" :list="item.list"
-        :icon="item.icon" /> -->
+      <TransitionGroup name="bounce" tag="ServerPanel">
+        <ServerPanel v-for="item in store.servers" :key="item.ip" :motd="item.info.motd" :address="item.ip" :port="item.port"
+          :ping="item.info.roundTripLatency" :version="item.info.version.name" :protocol="item.info.version.protocol"
+          :online-players="item.info.players.online" :max-players="item.info.players.max" :icon="item.info.favicon"
+          :list="item.info.players.sample" />
+      </TransitionGroup>
     </div>
-    <SearchPanel/>
+    <SearchPanel />
   </div>
 </template>
 
@@ -37,14 +40,12 @@ body {
   color: #FFF;
 }
 
-.wrapper
-{
+.wrapper {
   display: flex;
   flex-direction: row;
 }
 
-.server-container
-{
+.server-container {
   margin: auto;
   background: #202020;
   padding: 10px;
@@ -62,5 +63,27 @@ h5,
 h6 {
   padding: 0;
   margin: 0;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

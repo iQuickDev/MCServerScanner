@@ -60,7 +60,7 @@ async function scan(network, netmask, range = [], delay = delay*1000) {
             scan.on('result', async data => {
                 let { ip, port } = data
                 try {
-                    io.sockets.emit('new-server', await mcutil.status(ip, port))
+                    io.sockets.emit('new-server', {ip, port, info: await mcutil.status(ip, port)})
                 } catch (e) { console.error(e) }
             })
 
@@ -76,4 +76,4 @@ async function scan(network, netmask, range = [], delay = delay*1000) {
     }
 }
 
-//scan("185.116.157.0", 24, [17000, 18000], 5)
+scan("185.116.157.0", 24, [17000, 18000], 5)
