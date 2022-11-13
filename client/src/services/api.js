@@ -1,4 +1,4 @@
-import {io} from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { useStore } from '../store/store.js'
 
 export default class API

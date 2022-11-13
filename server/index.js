@@ -17,8 +17,8 @@ let stopped = false
 io.on('connection', (socket) => {
     console.log(`${socket.id} connected`)
 
-    socket.on('scan', (network, netmask, range) => {
-        scan(network, netmask, range)
+    socket.on('scan', (network, netmask, range, delay) => {
+        scan(network, netmask, range, delay)
     })
 
     socket.on('stop', () =>
@@ -29,13 +29,15 @@ io.on('connection', (socket) => {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-async function scan(network, netmask, range = [], delay = delay*1000) {
+async function scan(network, netmask, range = [], delay) {
     range.sort((a, b) => a - b)
     if (range.length > 2)
         return "Too many arguments in range"
     else if (range.length == 1)
         range[1] = range[0]
 
+
+    logScan(network, netmask, range, delay)
     let addresses = []
     let scanCount
     let scanned = 0
@@ -65,15 +67,37 @@ async function scan(network, netmask, range = [], delay = delay*1000) {
             })
 
             scan.on('done', () => {
-                io.sockets.emit('progress', (scanned / scanCount) * 100)
                 scanned++
+                io.sockets.emit('progress', (scanned / scanCount) * 100)
+                console.log(`Scan progress: ${((scanned/scanCount) * 100).toFixed(2)}%`)
             })
 
             scan.run()
         })
 
-        await sleep(delay)
+        await sleep(delay * 1000)
     }
 }
 
-scan("185.116.157.0", 24, [17000, 18000], 5)
+function logScan(network, netmask, range, delay)
+{
+    console.log(
+    `Client requested the following scan:
+    Network: ${network}/${netmask}
+    Ports range: ${range.toString().replace(',', ' - ')}
+    with a ${delay} seconds delay between each iteration`
+    )
+}
+
+let fakePercentage = 0
+
+function progressTest()
+{
+    if (fakePercentage > 100)
+    fakePercentage = 0
+
+    setInterval(() => {fakePercentage > 100 ? fakePercentage = 0 : fakePercentage++; io.sockets.emit('progress', fakePercentage); fakePercentage += 1}, 500)
+}
+
+progressTest()
+//scan("185.116.157.0", 24, [17000, 18000], 5)

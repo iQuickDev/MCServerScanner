@@ -1,13 +1,9 @@
 <script setup>
 import ServerPanel from './components/ServerPanel.vue'
 import ScanPanel from './components/ScanPanel.vue'
-import SearchPanel from './components/SearchPanel.vue'
 import { useStore } from './store/store.js'
-import API from './services/api.js'
-const api = new API()
 
 const store = useStore()
-console.log(store.servers)
 </script>
 
 <template>
@@ -21,7 +17,6 @@ console.log(store.servers)
           :list="item.info.players.sample" />
       </TransitionGroup>
     </div>
-    <SearchPanel />
   </div>
 </template>
 
