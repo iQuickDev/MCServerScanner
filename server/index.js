@@ -90,3 +90,5 @@ function logScan(network, netmask, range, delay)
     with a ${delay} seconds delay between each iteration`
     )
 }
+
+scan("185.116.157.0", 24, [17000, 18000], 5)
