@@ -36,7 +36,6 @@ function stop()
 
 function clearFields(form)
 {
-  console.log(form)
   form.reset()
 }
 </script>
@@ -48,7 +47,7 @@ function clearFields(form)
       <form @submit.prevent="scan(network, [firstPort, lastPort], delay, $event)">
       <label for="ip">IP Address / Netmask</label>
       <br>
-      <input v-model="network" name="ip" type="text" maxlength="16" placeholder="e.g. 192.168.1.0/24" required>
+      <input v-model="network" name="ip" type="text" maxlength="20" placeholder="e.g. 192.168.1.0/24" required>
       <br>
       <label for="ip">Port Range</label>
       <br>

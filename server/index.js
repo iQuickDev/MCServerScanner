@@ -62,19 +62,21 @@ async function scan(network, netmask, range = [], delay) {
             scan.on('result', async data => {
                 let { ip, port } = data
                 try {
-                    io.sockets.emit('new-server', {ip, port, info: await mcutil.status(ip, port)})
-                } catch (e) { console.error(e) }
+                    let info = await mcutil.status(ip, port)
+                    if ((info.players.online == info.players.sample.length) && info.favicon)
+                    {
+                        console.log(`[HIT] ${ip}:${port} (${((scanned/scanCount) * 100).toFixed(2)}%)`)
+                        io.sockets.emit('new-server', {ip, port, info})
+                    }
+                } catch (e) { }
             })
 
             scan.on('done', () => {
                 scanned++
                 io.sockets.emit('progress', (scanned / scanCount) * 100)
-                console.log(`Scan progress: ${((scanned/scanCount) * 100).toFixed(2)}%`)
             })
-
             scan.run()
         })
-
         await sleep(delay * 1000)
     }
 }
@@ -88,16 +90,3 @@ function logScan(network, netmask, range, delay)
     with a ${delay} seconds delay between each iteration`
     )
 }
-
-let fakePercentage = 0
-
-function progressTest()
-{
-    if (fakePercentage > 100)
-    fakePercentage = 0
-
-    setInterval(() => {fakePercentage > 100 ? fakePercentage = 0 : fakePercentage++; io.sockets.emit('progress', fakePercentage); fakePercentage += 1}, 500)
-}
-
-progressTest()
-//scan("185.116.157.0", 24, [17000, 18000], 5)
