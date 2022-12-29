@@ -14,9 +14,10 @@ export default class API
         })
     }
 
-    scan(network, netmask, range, delay)
+    scan(network, netmask, range, delay, rate)
     {
-        this.socket.emit('scan', network, netmask, range, delay)
+        console.log(rate)
+        this.socket.emit('scan', network, netmask, range, delay, rate)
     }
 
     stop()

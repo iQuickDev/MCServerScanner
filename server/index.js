@@ -5,7 +5,7 @@ const Evilscan = require('evilscan')
 const express = require('express')
 const app = express()
 app.use(express.static('dist'))
-app.listen(8787)
+app.listen(8787, () => console.log("Server is listening on 0.0.0.0:8787"))
 const io = new Server(6969, {
     cors: {
         origin: '*'
@@ -17,8 +17,8 @@ let stopped = false
 io.on('connection', (socket) => {
     console.log(`${socket.id} connected`)
 
-    socket.on('scan', (network, netmask, range, delay) => {
-        scan(network, netmask, range, delay)
+    socket.on('scan', (network, netmask, range, delay, rate) => {
+        scan(network, netmask, range, delay, rate)
     })
 
     socket.on('stop', () =>
@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-async function scan(network, netmask, range = [], delay) {
+async function scan(network, netmask, range = [], delay, rate) {
     range.sort((a, b) => a - b)
     if (range.length > 2)
         return "Too many arguments in range"
@@ -37,7 +37,7 @@ async function scan(network, netmask, range = [], delay) {
         range[1] = range[0]
 
 
-    logScan(network, netmask, range, delay)
+    logScan(network, netmask, range, delay, rate)
     let addresses = []
     let scanCount
     let scanned = 0
@@ -49,6 +49,7 @@ async function scan(network, netmask, range = [], delay) {
         if (stopped)
         {
             stopped = false
+            console.log("Client stopped the scan")
             return
         }
         new Evilscan({
@@ -56,18 +57,18 @@ async function scan(network, netmask, range = [], delay) {
             port: `${range[0]}-${range[1]}`,
             status: 'O',
             banner: true,
-            concurrency: 256
+            concurrency: rate
         }, async (err, scan) => {
             if (err) console.error(err)
             scan.on('result', async data => {
                 let { ip, port } = data
                 try {
                     let info = await mcutil.status(ip, port)
-                    if ((info.players.online == info.players.sample.length) && info.favicon)
-                    {
+                    // if ((info.players.online == info.players.sample.length) && info.favicon)
+                    // {
                         console.log(`[HIT] ${ip}:${port} (${((scanned/scanCount) * 100).toFixed(2)}%)`)
                         io.sockets.emit('new-server', {ip, port, info})
-                    }
+                    //}
                 } catch (e) { }
             })
 
@@ -81,14 +82,13 @@ async function scan(network, netmask, range = [], delay) {
     }
 }
 
-function logScan(network, netmask, range, delay)
+function logScan(network, netmask, range, delay, rate)
 {
     console.log(
     `Client requested the following scan:
     Network: ${network}/${netmask}
     Ports range: ${range.toString().replace(',', ' - ')}
+    Checking on ${rate} ports per second
     with a ${delay} seconds delay between each iteration`
     )
 }
-
-scan("185.116.157.0", 24, [17000, 18000], 5)

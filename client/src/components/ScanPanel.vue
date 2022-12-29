@@ -20,10 +20,10 @@ store.API.socket.on('progress', (progress) =>
   stop()
 })
 
-function scan(network, range, delay, $event)
+function scan(network, range, delay, rate, $event)
 {
   let networkTuple = network.split('/')
-  store.API.scan(networkTuple[0], networkTuple[1], range, delay)
+  store.API.scan(networkTuple[0], networkTuple[1], range, delay, rate)
   isScanning.value = true
   clearFields($event.target)
 }
@@ -32,6 +32,7 @@ function stop()
 {
   store.API.stop()
   isScanning.value = false
+  scanProgress.value = 0
 }
 
 function clearFields(form)
@@ -44,7 +45,7 @@ function clearFields(form)
   <div class="serverscanner-wrapper">
     <div class="panel">
       <h1 class="title">Scanner</h1>
-      <form @submit.prevent="scan(network, [firstPort, lastPort], delay, $event)">
+      <form @submit.prevent="scan(network, [firstPort, lastPort], delay, rate, $event)">
       <label for="ip">IP Address / Netmask</label>
       <br>
       <input v-model="network" name="ip" type="text" maxlength="20" placeholder="e.g. 192.168.1.0/24" required>
@@ -57,7 +58,11 @@ function clearFields(form)
       <br>
       <label for="ip">Delay (recommended: 5)</label>
       <br>
-      <input v-model="delay" name="delay" type="number" max="60" min="0" placeholder="e.g. 5" required>
+      <input v-model="delay" name="delay" type="number" max="500" min="0" placeholder="e.g. 5" required>
+      <br>
+      <label for="rate">Ports per second</label>
+      <br>
+      <input v-model="rate" name="rate" type="number" max="65000" min="1" placeholder="e.g. 100" required>
       <br>
       <button class="scan-button" v-show="!isScanning">SCAN</button>
     </form>

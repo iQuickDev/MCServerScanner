@@ -1,15 +1,15 @@
-<script type="module">
-    import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";
-  
-    const socket = io("127.0.0.1:6969")
-
-    socket.on('connect', () =>
-    {
-        console.log('connected')
-    })
-
-    socket.on('new-server', (data) =>
-    {
-        console.log(data)
-    })
-  </script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCServerScanner</title>
+    <script type="module" crossorigin src="/assets/index.9eca13b9.js"></script>
+    <link rel="stylesheet" href="/assets/index.5ba86b27.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    
+  </body>
+</html>
